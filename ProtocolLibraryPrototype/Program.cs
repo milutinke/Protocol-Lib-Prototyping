@@ -1,4 +1,8 @@
-﻿using ProtocolLibraryPrototype.Protocol;
+﻿using System.Text.RegularExpressions;
+using ProtocolLibraryPrototype.Protocol;
+using ProtocolLibraryPrototype.Protocol.Packet;
+using ProtocolLibraryPrototype.Protocol.Packets;
+using ProtocolLibraryPrototype.Protocol.Registries;
 
 namespace ProtocolLibraryPrototype
 {
@@ -8,6 +12,7 @@ namespace ProtocolLibraryPrototype
         {
             Versions protocolVersion = Versions.MC_1_12;
             PacketRegistry.RegisterPackets(protocolVersion);
+            PacketHandlerRegistry.RegisterHandlers(protocolVersion);
 
             byte[] somePacketData = { 0x23, 0x12, 0x12, 0x1, 0x02, 0xA, 0xB1, 0x11, 0x7 };
             int packetId = 0x3;
@@ -16,18 +21,19 @@ namespace ProtocolLibraryPrototype
             packetReadingSimulator.PacketReadEvent += packet =>
             {
                 var converted = Convert.ChangeType(packet, packet.GetType());
-                Console.WriteLine(converted.GetType().Name);
-                var packetProperties = packet.GetType().GetProperties().ToList();
-                var packetFields = packet.GetType().GetFields();
-                foreach (var property in packetProperties)
-                {
-                    Console.WriteLine($"{property.Name}: {property.GetValue(packet)}");
-                }
+                string packetNameSterilized = Regex.Replace(converted.GetType().Name, @"[^a-zA-Z]+", String.Empty).Trim();
 
-                foreach (var field in packetFields)
+                if (Enum.TryParse(packetNameSterilized, false, out PacketTypes packetType))
                 {
-                    Console.WriteLine($"{field.Name}: {field.GetValue(packet)}");
+                    Console.WriteLine($"Found type: {packetType}");
+
+                    if (PacketHandlerRegistry.Handlers.ContainsKey(packetType))
+                    {
+                        var handler = (Handler)Activator.CreateInstance(PacketHandlerRegistry.Handlers[packetType])!;
+                        handler.Handle(packet);
+                    }
                 }
+                else Console.WriteLine("Could not find the type!");
             };
 
             packetReadingSimulator.ReadPacket();

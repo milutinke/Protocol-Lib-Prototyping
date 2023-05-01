@@ -3,13 +3,13 @@
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
     public class PacketMeta : Attribute
     {
-        public Versions ProtocolVersion { get; }
-        public int PacketId { get; }
+        public Versions protocolVersion { get; }
+        public int packetId { get; }
 
-        public PacketMeta(Versions ProtocolVersion, int PacketId)
+        public PacketMeta(Versions protocolVersion, int packetId)
         {
-            this.ProtocolVersion = ProtocolVersion;
-            this.PacketId = PacketId;
+            this.protocolVersion = protocolVersion;
+            this.packetId = packetId;
         }
     }
 }

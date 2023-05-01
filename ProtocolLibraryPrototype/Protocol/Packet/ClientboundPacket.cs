@@ -1,19 +1,19 @@
 using System.Runtime.CompilerServices;
 using System.Text;
 
-namespace ProtocolLibraryPrototype.Packets;
+namespace ProtocolLibraryPrototype.Protocol.Packet;
 
-public abstract class ClientboundPacket : Packet
+public abstract class ClientboundPacket : BasePacket
 {
-    private Queue<byte> packetData;
-    
+    private Queue<byte> _packetData;
+
     public abstract void Read();
 
     public void SetPacketData(byte[] data)
     {
-        packetData = new Queue<byte>(data);
+        _packetData = new Queue<byte>(data);
     }
-    
+
     /// <summary>
     /// Read some data from a cache of bytes and remove it from the cache
     /// </summary>
@@ -24,7 +24,7 @@ public abstract class ClientboundPacket : Packet
     {
         byte[] result = new byte[offset];
         for (int i = 0; i < offset; i++)
-            result[i] = packetData.Dequeue();
+            result[i] = _packetData.Dequeue();
         return result;
     }
 
@@ -36,7 +36,7 @@ public abstract class ClientboundPacket : Packet
     protected void ReadDataReverse(Span<byte> dest)
     {
         for (int i = (dest.Length - 1); i >= 0; --i)
-            dest[i] = packetData.Dequeue();
+            dest[i] = _packetData.Dequeue();
     }
 
     /// <summary>
@@ -47,7 +47,7 @@ public abstract class ClientboundPacket : Packet
     protected void DropData(int offset)
     {
         while (offset-- > 0)
-            packetData.Dequeue();
+            _packetData.Dequeue();
     }
 
     /// <summary>
@@ -91,7 +91,7 @@ public abstract class ClientboundPacket : Packet
     {
         Span<byte> rawValue = stackalloc byte[2];
         for (int i = (2 - 1); i >= 0; --i) //Endianness
-            rawValue[i] = packetData.Dequeue();
+            rawValue[i] = _packetData.Dequeue();
         return BitConverter.ToInt16(rawValue);
     }
 
@@ -104,7 +104,7 @@ public abstract class ClientboundPacket : Packet
     {
         Span<byte> rawValue = stackalloc byte[4];
         for (int i = (4 - 1); i >= 0; --i) //Endianness
-            rawValue[i] = packetData.Dequeue();
+            rawValue[i] = _packetData.Dequeue();
         return BitConverter.ToInt32(rawValue);
     }
 
@@ -117,7 +117,7 @@ public abstract class ClientboundPacket : Packet
     {
         Span<byte> rawValue = stackalloc byte[8];
         for (int i = (8 - 1); i >= 0; --i) //Endianness
-            rawValue[i] = packetData.Dequeue();
+            rawValue[i] = _packetData.Dequeue();
         return BitConverter.ToInt64(rawValue);
     }
 
@@ -130,7 +130,7 @@ public abstract class ClientboundPacket : Packet
     {
         Span<byte> rawValue = stackalloc byte[2];
         for (int i = (2 - 1); i >= 0; --i) //Endianness
-            rawValue[i] = packetData.Dequeue();
+            rawValue[i] = _packetData.Dequeue();
         return BitConverter.ToUInt16(rawValue);
     }
 
@@ -143,7 +143,7 @@ public abstract class ClientboundPacket : Packet
     {
         Span<byte> rawValue = stackalloc byte[8];
         for (int i = (8 - 1); i >= 0; --i) //Endianness
-            rawValue[i] = packetData.Dequeue();
+            rawValue[i] = _packetData.Dequeue();
         return BitConverter.ToUInt64(rawValue);
     }
 
@@ -204,7 +204,7 @@ public abstract class ClientboundPacket : Packet
     {
         Span<byte> rawValue = stackalloc byte[8];
         for (int i = (8 - 1); i >= 0; --i) //Endianness
-            rawValue[i] = packetData.Dequeue();
+            rawValue[i] = _packetData.Dequeue();
         return BitConverter.ToDouble(rawValue);
     }
 
@@ -217,7 +217,7 @@ public abstract class ClientboundPacket : Packet
     {
         Span<byte> rawValue = stackalloc byte[4];
         for (int i = (4 - 1); i >= 0; --i) //Endianness
-            rawValue[i] = packetData.Dequeue();
+            rawValue[i] = _packetData.Dequeue();
         return BitConverter.ToSingle(rawValue);
     }
 
@@ -234,7 +234,7 @@ public abstract class ClientboundPacket : Packet
 
         do
         {
-            b = packetData.Dequeue();
+            b = _packetData.Dequeue();
             i |= (b & 0x7F) << j++ * 7;
             if (j > 5) throw new OverflowException("VarInt too big");
         } while ((b & 0x80) == 128);
@@ -304,7 +304,7 @@ public abstract class ClientboundPacket : Packet
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     protected byte ReadByte()
     {
-        return packetData.Dequeue();
+        return _packetData.Dequeue();
     }
 
     // TODO: Add missing methods

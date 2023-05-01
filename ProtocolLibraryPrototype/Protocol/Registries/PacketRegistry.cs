@@ -1,12 +1,22 @@
-﻿using ProtocolLibraryPrototype.Packets;
-using ProtocolLibraryPrototype.Protocol.Attributes;
+﻿using ProtocolLibraryPrototype.Protocol.Attributes;
+using ProtocolLibraryPrototype.Protocol.Packet;
 
-namespace ProtocolLibraryPrototype.Protocol
+namespace ProtocolLibraryPrototype.Protocol.Registries
 {
     public class PacketRegistry
     {
-        public static Dictionary<int, Type> ClientboundPackets = new Dictionary<int, Type>();
-        public static Dictionary<int, Type> ServerboundPackets = new Dictionary<int, Type>();
+        public static Dictionary<int, Type> _clienboundPackets = new();
+        public static Dictionary<int, Type> _serverboundPackets = new();
+
+        public static Dictionary<int, Type> ClientboundPackets
+        {
+            get { return _clienboundPackets; }
+        }
+        
+        public static Dictionary<int, Type> ServerboundPackets
+        {
+            get { return _serverboundPackets; }
+        }
 
         public static void RegisterPackets(Versions protocolVersion)
         {
@@ -16,30 +26,30 @@ namespace ProtocolLibraryPrototype.Protocol
             // Get a list of packets that have the PacketMeta attribute and are for the specified protocol version
             var packets = assemblies
                 .SelectMany(a => a.GetTypes())
-                .Where(t => typeof(Packet).IsAssignableFrom(t))
+                .Where(t => typeof(BasePacket).IsAssignableFrom(t))
                 .Where(t => t.GetCustomAttributes(typeof(PacketMeta), false)
-                .Any(a => ((PacketMeta)a).ProtocolVersion == protocolVersion))
+                .Any(a => ((PacketMeta)a).protocolVersion == protocolVersion))
                 .ToList();
 
             foreach (var packet in packets)
             {
                 // Get the packe meta attribute for the specified protocol version so we can get a specific packet ID for that protocol version
                 var packetId = packet.GetCustomAttributes(typeof(PacketMeta), false)
-                    .Where(m => ((PacketMeta)m).ProtocolVersion == protocolVersion)
+                    .Where(m => ((PacketMeta)m).protocolVersion == protocolVersion)
                     .Select(m => (PacketMeta)m)
-                    .First().PacketId;
+                    .First().packetId;
                 
                 if(packet.IsSubclassOf(typeof(ClientboundPacket)))
-                    ClientboundPackets.Add(packetId, packet);
+                    _clienboundPackets.Add(packetId, packet);
                 else if(packet.IsSubclassOf(typeof(ServerboundPacket)))
-                    ServerboundPackets.Add(packetId, packet);
+                    _serverboundPackets.Add(packetId, packet);
             }
         }
 
         public static void UnregisterPackets()
         {
-            ClientboundPackets.Clear();
-            ServerboundPackets.Clear();
+            _clienboundPackets.Clear();
+            _serverboundPackets.Clear();
         }
     }
 }

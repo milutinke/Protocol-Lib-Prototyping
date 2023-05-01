@@ -1,10 +1,11 @@
-﻿using ProtocolLibraryPrototype.Packets;
+﻿using ProtocolLibraryPrototype.Protocol.Packet;
+using ProtocolLibraryPrototype.Protocol.Registries;
 
 namespace ProtocolLibraryPrototype.Protocol
 {
     public class SimulateReadPacket
     {
-        public delegate void OnPacketRead(Packet packet);
+        public delegate void OnPacketRead(BasePacket packet);
 
         public event OnPacketRead? PacketReadEvent;
 

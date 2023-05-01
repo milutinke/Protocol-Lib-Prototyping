@@ -1,11 +1,17 @@
 using System.Text;
 
-namespace ProtocolLibraryPrototype.Packets;
+namespace ProtocolLibraryPrototype.Protocol.Packet;
 
-public class ServerboundPacket : Packet
+public abstract class ServerboundPacket : BasePacket
 {
-    private List<byte> packetData = new List<byte>();
-    public List<byte> PacketData { get; }
+    private List<byte> _packetData = new List<byte>();
+
+    public byte[] Get_packetData()
+    {
+        return _packetData.ToArray();
+    }
+
+    public abstract void Write();
 
     /// <summary>
     /// Build a VarInt over network
@@ -15,11 +21,11 @@ public class ServerboundPacket : Packet
     {
         while ((paramInt & -128) != 0)
         {
-            packetData.Add((byte)(paramInt & 127 | 128));
+            _packetData.Add((byte)(paramInt & 127 | 128));
             paramInt = (int)(((uint)paramInt) >> 7);
         }
 
-        packetData.Add((byte)paramInt);
+        _packetData.Add((byte)paramInt);
     }
 
     /// <summary>
@@ -28,7 +34,7 @@ public class ServerboundPacket : Packet
     /// <param name="paramBool">Boolean to encode</param>
     protected void WriteBool(bool paramBool)
     {
-        packetData.Add(Convert.ToByte(paramBool));
+        _packetData.Add(Convert.ToByte(paramBool));
     }
 
     private void WriteNumberType<T>(T number) where T : unmanaged
@@ -56,7 +62,7 @@ public class ServerboundPacket : Packet
             throw new ArgumentException("Type parameter 'number' must be a numeric type.");
 
         Array.Reverse(bytes);
-        packetData.AddRange(bytes);
+        _packetData.AddRange(bytes);
     }
 
 
@@ -151,7 +157,7 @@ public class ServerboundPacket : Packet
     protected void WriteByteArray(params byte[][] bytes)
     {
         foreach (byte[] array in bytes)
-            packetData.AddRange(array);
+            _packetData.AddRange(array);
     }
 
     // TODO: Add missing methods

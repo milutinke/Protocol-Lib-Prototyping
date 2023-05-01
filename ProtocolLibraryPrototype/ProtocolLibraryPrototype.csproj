@@ -8,9 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Protocol\Packets\Clientbound\Login\" />
-    <Folder Include="Protocol\Packets\Serverbound\Login\" />
-    <Folder Include="Protocol\Packets\Serverbound\Play\" />
+    <Folder Include="Protocol\Packets\Definitions\" />
   </ItemGroup>
 
 </Project>
