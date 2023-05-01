@@ -5,9 +5,8 @@ namespace ProtocolLibraryPrototype.Protocol
 {
     public class PacketRegistry
     {
-        public static Dictionary<int, Type> LoginPackets = new Dictionary<int, Type>();
-        public static Dictionary<int, Type> InboundPackets = new Dictionary<int, Type>();
-        public static Dictionary<int, Type> OutboundPackets = new Dictionary<int, Type>();
+        public static Dictionary<int, Type> ClientboundPackets = new Dictionary<int, Type>();
+        public static Dictionary<int, Type> ServerboundPackets = new Dictionary<int, Type>();
 
         public static void RegisterPackets(Versions protocolVersion)
         {
@@ -24,40 +23,23 @@ namespace ProtocolLibraryPrototype.Protocol
 
             foreach (var packet in packets)
             {
-                var packetTypes = packet.GetCustomAttributes(typeof(PacketType), false);
-                var packetTypeAttribute = packetTypes.Length == 1 ? (PacketType)packetTypes.First() : null;
-
-                if (packetTypeAttribute == null)
-                {
-                    // TODO: War about a packet that doesn't have a packet type attribute
-                    continue;
-                }
-
                 // Get the packe meta attribute for the specified protocol version so we can get a specific packet ID for that protocol version
-                var packetMeta = packet.GetCustomAttributes(typeof(PacketMeta), false)
+                var packetId = packet.GetCustomAttributes(typeof(PacketMeta), false)
                     .Where(m => ((PacketMeta)m).ProtocolVersion == protocolVersion)
                     .Select(m => (PacketMeta)m)
-                    .First();
-
-                if (packetMeta == null)
-                    continue;
-
-                var packetId = packetMeta.PacketId;
-
-                if (packetTypeAttribute.Type == PacketTypes.Login)
-                    LoginPackets.Add(packetMeta.PacketId, packet);
-                else if (packetTypeAttribute.Type == PacketTypes.In)
-                    InboundPackets.Add(packetMeta.PacketId, packet);
-                else if (packetTypeAttribute.Type == PacketTypes.Out)
-                    OutboundPackets.Add(packetMeta.PacketId, packet);
+                    .First().PacketId;
+                
+                if(packet.IsSubclassOf(typeof(ClientboundPacket)))
+                    ClientboundPackets.Add(packetId, packet);
+                else if(packet.IsSubclassOf(typeof(ServerboundPacket)))
+                    ServerboundPackets.Add(packetId, packet);
             }
         }
 
         public static void UnregisterPackets()
         {
-            LoginPackets.Clear();
-            InboundPackets.Clear();
-            OutboundPackets.Clear();
+            ClientboundPackets.Clear();
+            ServerboundPackets.Clear();
         }
     }
 }

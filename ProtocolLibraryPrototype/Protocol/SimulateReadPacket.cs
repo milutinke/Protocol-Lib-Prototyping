@@ -5,12 +5,13 @@ namespace ProtocolLibraryPrototype.Protocol
     public class SimulateReadPacket
     {
         public delegate void OnPacketRead(Packet packet);
+
         public event OnPacketRead? PacketReadEvent;
 
-        private byte somePacketData;
+        private byte[] somePacketData;
         private int packetId;
 
-        public SimulateReadPacket(byte somePacketData, int packetId)
+        public SimulateReadPacket(byte[] somePacketData, int packetId)
         {
             this.somePacketData = somePacketData;
             this.packetId = packetId;
@@ -18,13 +19,14 @@ namespace ProtocolLibraryPrototype.Protocol
 
         public void ReadPacket()
         {
-            var type = PacketRegistry.InboundPackets[packetId];
-
-            if (type == null)
+            if (!PacketRegistry.ClientboundPackets.ContainsKey(packetId))
+            {
+                // TODO: Warn about a not handled packet
                 return;
-
-            var packet = (Packet)Activator.CreateInstance(type)!;
-            packet.PacketData.Enqueue(somePacketData);
+            }
+            
+            var packet = (ClientboundPacket)Activator.CreateInstance(PacketRegistry.ClientboundPackets[packetId])!;
+            packet.SetPacketData(somePacketData);
             packet.Read();
             PacketReadEvent?.Invoke(packet);
         }
