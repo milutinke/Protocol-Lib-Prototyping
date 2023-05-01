@@ -13,6 +13,12 @@ namespace ProtocolLibraryPrototype
             Versions protocolVersion = Versions.MC_1_12;
             PacketRegistry.RegisterPackets(protocolVersion);
             PacketHandlerRegistry.RegisterHandlers(protocolVersion);
+            
+            // Flow:
+            // -> Reader -> Checking the PacketRegistry for a packet for current protocol version
+            // -> Instantiate the found packet -> Call the PacketReadEvent -> Check the HandlersRegistry for the packet type
+            // -> Instantiate the found packet handler -> Handle the packet using the Handle method
+            // -> Call appropriate client methods
 
             byte[] somePacketData = { 0x23, 0x12, 0x12, 0x1, 0x02, 0xA, 0xB1, 0x11, 0x7 };
             int packetId = 0x3;

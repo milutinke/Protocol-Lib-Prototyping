@@ -3,6 +3,11 @@ using ProtocolLibraryPrototype.Protocol.Packet;
 
 namespace ProtocolLibraryPrototype.Protocol.Registries
 {
+    /*
+     * This class holds a list of packets that are sent to the client (clientbound), and that are supposed to be sent to the server (serverbound)
+     * We scan the assembly for BasePacket type and PacketMeta annotation, then we use ClientboundPacket and ServerboundPacket
+     * to differentiate and sort the packets accordingly
+     */
     public class PacketRegistry
     {
         public static Dictionary<int, Type> _clienboundPackets = new();
@@ -23,7 +28,7 @@ namespace ProtocolLibraryPrototype.Protocol.Registries
             var assemblies = AppDomain.CurrentDomain.GetAssemblies()
                 .Where(a => a.FullName!.StartsWith(nameof(ProtocolLibraryPrototype)));
 
-            // Get a list of packets that have the PacketMeta attribute and are for the specified protocol version
+            // Get a list of packets that have the PacketMeta attribute and are for the given protocol version
             var packets = assemblies
                 .SelectMany(a => a.GetTypes())
                 .Where(t => typeof(BasePacket).IsAssignableFrom(t))
@@ -33,7 +38,7 @@ namespace ProtocolLibraryPrototype.Protocol.Registries
 
             foreach (var packet in packets)
             {
-                // Get the packe meta attribute for the specified protocol version so we can get a specific packet ID for that protocol version
+                // Get the packet meta attribute for the specified protocol version so we can get a specific packet ID for the given protocol version
                 var packetId = packet.GetCustomAttributes(typeof(PacketMeta), false)
                     .Where(m => ((PacketMeta)m).protocolVersion == protocolVersion)
                     .Select(m => (PacketMeta)m)
