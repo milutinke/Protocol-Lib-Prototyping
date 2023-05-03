@@ -13,7 +13,7 @@ namespace ProtocolLibraryPrototype
             Versions protocolVersion = Versions.MC_1_12;
             PacketRegistry.RegisterPackets(protocolVersion);
             PacketHandlerRegistry.RegisterHandlers(protocolVersion);
-            
+
             // Flow:
             // -> Reader -> Checking the PacketRegistry for a packet for current protocol version
             // -> Instantiate the found packet -> Call the PacketReadEvent -> Check the HandlersRegistry for the packet type
@@ -43,6 +43,13 @@ namespace ProtocolLibraryPrototype
             };
 
             packetReadingSimulator.ReadPacket();
+
+            SimulatePacketSend.SendPacket(PacketTypes.TestOutBoundPacket, new
+            {
+                TestInt = 232,
+                TestString = "Hello world!",
+                testInt2 = 14815
+            });
         }
     }
 }

@@ -6,5 +6,5 @@ public enum PacketTypes
     TestPacket,
     
     // Server-bound
-    TestOutboundPacket
+    TestOutBoundPacket
 }

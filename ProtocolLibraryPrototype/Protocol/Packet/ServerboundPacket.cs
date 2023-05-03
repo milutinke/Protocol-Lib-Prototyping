@@ -6,7 +6,7 @@ public abstract class ServerboundPacket : BasePacket
 {
     private List<byte> _packetData = new List<byte>();
 
-    public byte[] Get_packetData()
+    public byte[] GetPacketData()
     {
         return _packetData.ToArray();
     }
